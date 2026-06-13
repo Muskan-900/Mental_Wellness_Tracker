@@ -10,7 +10,7 @@ import MicroMindfulness from '../components/MicroMindfulness';
 import WrappedRecap from '../components/WrappedRecap';
 import confetti from 'canvas-confetti';
 
-const API_BASE_URL = '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 interface UserProfile {
   id: string;
