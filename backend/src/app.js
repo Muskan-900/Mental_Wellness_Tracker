@@ -49,13 +49,17 @@ app.use((err, req, res, next) => {
 if (process.env.NODE_ENV !== 'test') {
   initDb()
     .then(() => {
-      app.listen(PORT, () => {
-        console.log(`MindPulse AI Server running on port ${PORT} 🚀`);
-      });
+      if (!process.env.VERCEL) {
+        app.listen(PORT, () => {
+          console.log(`MindPulse AI Server running on port ${PORT} 🚀`);
+        });
+      }
     })
     .catch((err) => {
-      console.error('Critical: Failed to initialize database migration, shutting down.', err);
-      process.exit(1);
+      console.error('Critical: Failed to initialize database migration.', err);
+      if (!process.env.VERCEL) {
+        process.exit(1);
+      }
     });
 }
 

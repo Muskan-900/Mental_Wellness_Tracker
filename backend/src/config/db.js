@@ -5,9 +5,10 @@ const path = require('path');
 const isPostgres = process.env.DB_TYPE === 'postgres';
 let pgPool = null;
 
-// JSON File Database Fallback (Pure JavaScript - Zero Native compilation required)
 const dbFilename = process.env.NODE_ENV === 'test' ? 'test_mindpulse_db.json' : 'mindpulse_db.json';
-const jsonDbPath = path.resolve(__dirname, '../../', dbFilename);
+const jsonDbPath = process.env.VERCEL
+  ? path.join('/tmp', dbFilename)
+  : path.resolve(__dirname, '../../', dbFilename);
 
 // Helper to read JSON DB
 function readJsonDb() {
