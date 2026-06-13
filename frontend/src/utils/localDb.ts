@@ -164,30 +164,35 @@ function getStudyAura(journals: LocalJournal[]): string {
   return 'Balanced';
 }
 
+// Storage accessor that works in both browser and Node (test) environments
+function getStorage(): Storage | null {
+  if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
+  if (typeof globalThis !== 'undefined' && (globalThis as any).localStorage) return (globalThis as any).localStorage;
+  return null;
+}
+
 // Read/Write Local DB
 function readDb() {
-  if (typeof window === 'undefined') {
-    return { users: [], journals: [], coping_suggestions: [] };
-  }
-  const raw = localStorage.getItem('mindpulse_local_db');
+  const storage = getStorage();
+  if (!storage) return { users: [], journals: [], coping_suggestions: [] };
+  const raw = storage.getItem('mindpulse_local_db');
   if (!raw) {
     const fresh = { users: [], journals: [], coping_suggestions: [] };
-    localStorage.setItem('mindpulse_local_db', JSON.stringify(fresh));
+    storage.setItem('mindpulse_local_db', JSON.stringify(fresh));
     return fresh;
   }
   try {
     return JSON.parse(raw);
   } catch {
     const fresh = { users: [], journals: [], coping_suggestions: [] };
-    localStorage.setItem('mindpulse_local_db', JSON.stringify(fresh));
+    storage.setItem('mindpulse_local_db', JSON.stringify(fresh));
     return fresh;
   }
 }
 
 function writeDb(data: any) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('mindpulse_local_db', JSON.stringify(data));
-  }
+  const storage = getStorage();
+  if (storage) storage.setItem('mindpulse_local_db', JSON.stringify(data));
 }
 
 // Heuristics Analysis Functions
