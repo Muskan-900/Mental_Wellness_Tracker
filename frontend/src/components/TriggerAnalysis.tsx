@@ -47,11 +47,11 @@ export default function TriggerAnalysis({ triggers }: TriggerAnalysisProps) {
   };
 
   return (
-    <div className="glass-card p-6 md:p-8 relative h-full flex flex-col justify-between">
+    <div className="glass-card p-6 md:p-8 relative h-full flex flex-col justify-between" role="region" aria-label="Hidden Triggers Analysis">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
+            <div className="p-2.5 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20" aria-hidden="true">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>

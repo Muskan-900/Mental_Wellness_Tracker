@@ -82,12 +82,12 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
   };
 
   return (
-    <div className="glass-card p-6 md:p-8 relative overflow-hidden">
+    <div className="glass-card p-6 md:p-8 relative overflow-hidden" role="region" aria-label="Mindfulness Journal">
       {/* Background soft glow decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
       
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
+        <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20" aria-hidden="true">
           <BookOpen className="w-5 h-5" />
         </div>
         <div>
@@ -96,24 +96,29 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" aria-label="Journal entry form">
         {/* Sleep and Study parameters */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Sleep Hours Slider */}
           <div className="bg-slate-950/40 p-4 rounded-xl border border-white/5">
             <div className="flex justify-between items-center mb-2">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Moon className="w-3.5 h-3.5 text-blue-400" /> Sleep Duration
+              <label htmlFor="sleep-slider" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Moon className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" /> Sleep Duration
               </label>
-              <span className="text-xs font-bold text-blue-400">{sleepHours} hrs</span>
+              <span className="text-xs font-bold text-blue-400" aria-live="polite">{sleepHours} hrs</span>
             </div>
             <input
+              id="sleep-slider"
               type="range"
               min="2"
               max="12"
               step="0.5"
               value={sleepHours}
               onChange={(e) => setSleepHours(parseFloat(e.target.value))}
+              aria-label={`Sleep duration: ${sleepHours} hours`}
+              aria-valuemin={2}
+              aria-valuemax={12}
+              aria-valuenow={sleepHours}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-400"
             />
             <div className="flex justify-between text-[10px] text-slate-500 mt-1">
@@ -126,18 +131,23 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
           {/* Study Hours Slider */}
           <div className="bg-slate-950/40 p-4 rounded-xl border border-white/5">
             <div className="flex justify-between items-center mb-2">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <StudyIcon className="w-3.5 h-3.5 text-purple-400" /> Study / Focus time
+              <label htmlFor="study-slider" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <StudyIcon className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" /> Study / Focus time
               </label>
-              <span className="text-xs font-bold text-purple-400">{studyHours} hrs</span>
+              <span className="text-xs font-bold text-purple-400" aria-live="polite">{studyHours} hrs</span>
             </div>
             <input
+              id="study-slider"
               type="range"
               min="0"
               max="16"
               step="0.5"
               value={studyHours}
               onChange={(e) => setStudyHours(parseFloat(e.target.value))}
+              aria-label={`Study or focus time: ${studyHours} hours`}
+              aria-valuemin={0}
+              aria-valuemax={16}
+              aria-valuenow={studyHours}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-400"
             />
             <div className="flex justify-between text-[10px] text-slate-500 mt-1">
@@ -150,13 +160,16 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
 
         {/* Text Journal Input */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 block">
-            Share what's on your mind. Don't filter yourself.
+          <label htmlFor="journal-text" className="text-xs font-semibold text-slate-300 block">
+            Share what&apos;s on your mind. Don&apos;t filter yourself.
           </label>
           <div className="relative">
             <textarea
+              id="journal-text"
               value={journalText}
               onChange={handleTextChange}
+              aria-label="Journal entry text"
+              aria-describedby="char-count spam-warning"
               placeholder={
                 role === 'student'
                   ? "e.g. Spent 6 hours studying Physics but couldn't focus on the formula revision. Worried that everyone else is far ahead and my mock scores might drop..."
@@ -169,22 +182,22 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
             
             {/* Edge Case Spam warning */}
             {spamAlert && (
-              <div className="absolute bottom-3 left-4 flex items-center gap-1.5 text-amber-500 text-[10px] bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/10">
-                <AlertTriangle className="w-3 h-3" />
+              <div id="spam-warning" className="absolute bottom-3 left-4 flex items-center gap-1.5 text-amber-500 text-[10px] bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/10" role="alert">
+                <AlertTriangle className="w-3 h-3" aria-hidden="true" />
                 <span>Just letting you know: this reads a bit like keyboard spam. Real sentences help Nova analyze better!</span>
               </div>
             )}
 
             {/* Word count & Limit indicators */}
-            <div className="absolute bottom-3 right-4 text-[10px] text-slate-500">
+            <div id="char-count" className="absolute bottom-3 right-4 text-[10px] text-slate-500" aria-live="polite">
               {characterCount} / 15000 chars
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
+          <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2" role="alert">
+            <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
@@ -201,7 +214,7 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
         >
           {loading ? (
             <>
-              <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -209,7 +222,7 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
             </>
           ) : (
             <>
-              <Sparkles className="w-4.5 h-4.5" />
+              <Sparkles className="w-4.5 h-4.5" aria-hidden="true" />
               <span>Log Entry & Grow Pet (+15 XP)</span>
             </>
           )}
@@ -218,7 +231,7 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
 
       <div className="mt-4 flex items-center justify-between text-[10px] text-slate-500 px-1 border-t border-white/5 pt-4">
         <span className="flex items-center gap-1">
-          <Shield className="w-3 h-3 text-emerald-500" /> Privacy-First: Local AES Encryption At Rest
+          <Shield className="w-3 h-3 text-emerald-500" aria-hidden="true" /> Privacy-First: Local Storage Only
         </span>
         <span>No diagnostic medical claims</span>
       </div>

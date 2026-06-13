@@ -96,10 +96,10 @@ export default function MoodTimeline({ timeline }: MoodTimelineProps) {
   const correlation = getCorrelationTip();
 
   return (
-    <div className="glass-card p-6 md:p-8 relative h-full flex flex-col justify-between">
+    <div className="glass-card p-6 md:p-8 relative h-full flex flex-col justify-between" role="region" aria-label="Mood Timeline">
       <div>
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+          <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20" aria-hidden="true">
             <CalendarRange className="w-5 h-5" />
           </div>
           <div>

@@ -257,11 +257,11 @@ export default function Home() {
   if (!userId) {
     return (
       <div className="flex flex-col flex-1 items-center justify-center min-h-[80vh] px-4">
-        <div className="glass-card p-8 w-full max-w-md relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="glass-card p-8 w-full max-w-md relative overflow-hidden" role="region" aria-label="User onboarding">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" aria-hidden="true"></div>
           
           <div className="text-center space-y-3 mb-8">
-            <span className="text-3xl">🌱</span>
+            <span className="text-3xl" role="img" aria-label="Seedling">🌱</span>
             <h1 className="text-3xl font-extrabold font-outfit text-white tracking-tight leading-tight">
               MindPulse AI
             </h1>
@@ -270,70 +270,79 @@ export default function Home() {
             </p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-6">
+          <form onSubmit={handleRegister} className="space-y-6" aria-label="Registration form">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300 block">
+              <label htmlFor="onboarding-name" className="text-xs font-semibold text-slate-300 block">
                 Hey! What should I call you?
               </label>
               <input
+                id="onboarding-name"
                 type="text"
                 value={onboardingName}
                 onChange={(e) => setOnboardingName(e.target.value)}
                 placeholder="Enter your name"
                 required
-                className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500"
+                autoComplete="name"
+                aria-required="true"
+                className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300 block">
+              <label htmlFor="onboarding-pet-name" className="text-xs font-semibold text-slate-300 block">
                 What would you like to name your pet companion?
               </label>
               <input
+                id="onboarding-pet-name"
                 type="text"
                 value={onboardingPetName}
                 onChange={(e) => setOnboardingPetName(e.target.value)}
                 placeholder="Default: Nova"
-                className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500"
+                autoComplete="off"
+                className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
               />
             </div>
 
             {/* Role selection toggle */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300 block">
+              <label className="text-xs font-semibold text-slate-300 block" id="role-group-label">
                 What describes your focus area right now?
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-labelledby="role-group-label">
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={role === 'student'}
                   onClick={() => setRole('student')}
-                  className={`py-3 px-4 rounded-xl border flex flex-col items-center gap-1.5 cursor-pointer transition ${
+                  className={`py-3 px-4 rounded-xl border flex flex-col items-center gap-1.5 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
                     role === 'student'
                       ? 'border-purple-500 bg-purple-500/10 text-white'
                       : 'border-white/5 bg-slate-950/20 text-slate-400 hover:text-white'
                   }`}
                 >
-                  <GraduationCap className="w-5 h-5 text-purple-400" />
+                  <GraduationCap className="w-5 h-5 text-purple-400" aria-hidden="true" />
                   <span className="text-xs font-semibold">Exams (JEE, NEET, GATE)</span>
                 </button>
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={role === 'professional'}
                   onClick={() => setRole('professional')}
-                  className={`py-3 px-4 rounded-xl border flex flex-col items-center gap-1.5 cursor-pointer transition ${
+                  className={`py-3 px-4 rounded-xl border flex flex-col items-center gap-1.5 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
                     role === 'professional'
                       ? 'border-purple-500 bg-purple-500/10 text-white'
                       : 'border-white/5 bg-slate-950/20 text-slate-400 hover:text-white'
                   }`}
                 >
-                  <Briefcase className="w-5 h-5 text-pink-400" />
+                  <Briefcase className="w-5 h-5 text-pink-400" aria-hidden="true" />
                   <span className="text-xs font-semibold">Office & Deadlines</span>
                 </button>
               </div>
             </div>
 
             {backendError && (
-              <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-400 text-xs rounded-lg">
-                Could not connect to the backend server. Make sure to run `node src/app.js` in backend first!
+              <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-400 text-xs rounded-lg" role="alert">
+                Could not save data locally. Please try again.
               </div>
             )}
 
@@ -355,8 +364,8 @@ export default function Home() {
       
       {/* XP Achievement Floating Banner */}
       {recentXPAward && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950 border border-emerald-500/30 px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-bounce">
-          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950 border border-emerald-500/30 px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-bounce" role="status" aria-live="polite">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center" aria-hidden="true">
             <Award className="w-4 h-4" />
           </div>
           <div>
@@ -368,31 +377,31 @@ export default function Home() {
 
       {/* Safety hotline modal */}
       {safetyAlert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-labelledby="safety-dialog-title">
           <div className="bg-slate-900 border border-red-500/40 rounded-3xl p-6 md:p-8 max-w-md text-center space-y-5 shadow-2xl">
-            <div className="w-16 h-16 bg-red-500/10 text-red-400 flex items-center justify-center rounded-full mx-auto">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 flex items-center justify-center rounded-full mx-auto" aria-hidden="true">
               <ShieldAlert className="w-8 h-8" />
             </div>
-            <h2 className="text-xl font-bold text-white font-jakarta">You're Not Alone. Support is Here.</h2>
+            <h2 id="safety-dialog-title" className="text-xl font-bold text-white font-jakarta">You're Not Alone. Support is Here.</h2>
             <p className="text-xs text-slate-300 leading-relaxed">
               We noticed some really heavy thoughts in your entry. Your life is valuable. Please connect with someone who can help right now.
             </p>
             
-            <div className="space-y-2.5 max-h-[180px] overflow-y-auto pr-1">
+            <ul className="space-y-2.5 max-h-[180px] overflow-y-auto pr-1" aria-label="Crisis helpline resources">
               {safetyAlert.resources.map((res: any) => (
-                <div key={res.name} className="p-3 bg-slate-950 border border-white/5 rounded-xl text-left">
+                <li key={res.name} className="p-3 bg-slate-950 border border-white/5 rounded-xl text-left">
                   <p className="text-xs font-bold text-white">{res.name}</p>
                   <div className="flex justify-between items-center mt-1">
                     <span className="text-xs font-black text-red-400">{res.number}</span>
                     <span className="text-[9px] text-slate-500 uppercase font-semibold">{res.hours}</span>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
 
             <button
               onClick={() => setSafetyAlert(null)}
-              className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition cursor-pointer"
+              className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               I Understand, Continue to Dashboard
             </button>
@@ -402,8 +411,8 @@ export default function Home() {
 
       {/* TOP PROFILE HEADER */}
       {profile && (
-        <div className="glass-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-l-purple-500 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl"></div>
+        <header className="glass-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-l-purple-500 relative overflow-hidden" aria-label="User profile summary">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl" aria-hidden="true"></div>
           
           <div className="flex items-center gap-4">
             <div className="text-3xl p-3 bg-purple-500/10 rounded-2xl border border-purple-500/20">
@@ -455,26 +464,28 @@ export default function Home() {
               title="Inject 6 days of historical logs to see visual charts, pet evolution stages, and study wrapped instantly!"
               className="bg-slate-950/60 hover:bg-slate-950 border border-white/5 hover:border-white/10 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white cursor-pointer transition flex items-center gap-1.5 text-xs font-semibold"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-purple-400" /> Seed Demo
+              <RefreshCw className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" /> Seed Demo
             </button>
 
             {/* Delete Profile Button */}
             <button
               onClick={handleDeleteProfile}
               title="Delete Profile & All Logs"
-              className="p-2.5 bg-red-950/20 hover:bg-red-950/40 border border-red-500/10 hover:border-red-500/30 rounded-xl text-red-400 cursor-pointer transition"
+              aria-label="Delete profile and all logs"
+              className="p-2.5 bg-red-950/20 hover:bg-red-950/40 border border-red-500/10 hover:border-red-500/30 rounded-xl text-red-400 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-red-400"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" aria-hidden="true" />
+              <span className="sr-only">Delete profile and all logs</span>
             </button>
           </div>
-        </div>
+        </header>
       )}
 
       {/* API ERROR BAR */}
       {backendError && (
-        <div className="p-4 bg-red-500/10 border border-red-500/25 rounded-2xl flex items-center gap-2.5 text-red-400 text-xs">
-          <Info className="w-4.5 h-4.5 shrink-0" />
-          <span>It looks like the backend server has stopped. Please start the server by running `node src/app.js` in `/var/www/html/MentalWellnessTracker/backend`.</span>
+        <div className="p-4 bg-red-500/10 border border-red-500/25 rounded-2xl flex items-center gap-2.5 text-red-400 text-xs" role="alert">
+          <Info className="w-4.5 h-4.5 shrink-0" aria-hidden="true" />
+          <span>Something went wrong. Please refresh the page and try again.</span>
         </div>
       )}
 
