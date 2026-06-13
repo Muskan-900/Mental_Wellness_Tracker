@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Local database files
+*.db
+*.sqlite
+mindpulse_db.json
+test_mindpulse_db.json
+backend/mindpulse_db.json
+backend/test_mindpulse_db.json
+
+# Build and cache directories
+.next/
+frontend/.next/
+out/
+build/
+dist/
+
+# Environment configurations
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+
+# IDE and OS files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
