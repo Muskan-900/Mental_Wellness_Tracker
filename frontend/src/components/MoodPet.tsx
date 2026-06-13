@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Heart, Trophy, Sparkles, Edit2, Check } from 'lucide-react';
+import { renameLocalPet } from '../utils/localDb';
 
 interface MoodPetProps {
   userId: string;
@@ -88,12 +89,8 @@ export default function MoodPet({ userId, petStage, petName, focusXP, activeMood
   const handleRenameSubmit = async () => {
     if (!tempName.trim()) return;
     try {
-      const response = await fetch(`${apiBaseUrl}/api/users/${userId}/rename-pet`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ petName: tempName.trim() })
-      });
-      if (response.ok) {
+      const updatedUser = renameLocalPet(userId, tempName.trim());
+      if (updatedUser) {
         onPetRenamed(tempName.trim());
         setIsEditingName(false);
       }

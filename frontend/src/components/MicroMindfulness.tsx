@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wind, Eye, Compass, Award, CheckCircle, Flame } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { rewardLocalXP } from '../utils/localDb';
 
 interface MicroMindfulnessProps {
   userId: string;
@@ -73,12 +74,8 @@ export default function MicroMindfulness({ userId, onXPAwarded, apiBaseUrl }: Mi
   const triggerXPReward = async (xpAmount: number, reason: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiBaseUrl}/api/users/${userId}/xp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ xpAmount, reason })
-      });
-      if (response.ok) {
+      const updatedUser = rewardLocalXP(userId, xpAmount);
+      if (updatedUser) {
         onXPAwarded(xpAmount, reason);
         confetti({
           particleCount: 50,

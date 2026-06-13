@@ -9,6 +9,13 @@ import MoodPet from '../components/MoodPet';
 import MicroMindfulness from '../components/MicroMindfulness';
 import WrappedRecap from '../components/WrappedRecap';
 import confetti from 'canvas-confetti';
+import {
+  registerLocalUser,
+  getLocalUserProfile,
+  seedLocalUserData,
+  deleteLocalUserProfile,
+  getLocalDashboardData
+} from '../utils/localDb';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -58,9 +65,8 @@ export default function Home() {
     setIsLoading(true);
     setBackendError(false);
     try {
-      // Fetch user profile
-      const profRes = await fetch(`${API_BASE_URL}/api/users/${uid}`);
-      if (profRes.status === 404) {
+      const dashData = getLocalDashboardData(uid);
+      if (!dashData) {
         localStorage.removeItem('mindpulse_userId');
         localStorage.removeItem('mindpulse_role');
         setUserId(null);
@@ -68,55 +74,45 @@ export default function Home() {
         setIsLoading(false);
         return;
       }
-      if (!profRes.ok) throw new Error("Backend offline");
-      const profData = await profRes.json();
+
       setProfile({
-        id: profData.user.id,
-        name: profData.user.name,
-        focusXP: profData.user.focus_xp,
-        streakCount: profData.user.streak_count,
-        petStage: profData.user.pet_stage,
-        petName: profData.user.pet_name,
-        petXP: profData.user.pet_xp,
-        studyAura: profData.user.study_aura
+        id: dashData.user.id,
+        name: dashData.user.name,
+        focusXP: dashData.user.focus_xp,
+        streakCount: dashData.user.streak_count,
+        petStage: dashData.user.pet_stage,
+        petName: dashData.user.pet_name,
+        petXP: dashData.user.pet_xp,
+        studyAura: dashData.user.study_aura
       });
 
-      // Fetch timeline, triggers, suggestions
-      const dashRes = await fetch(`${API_BASE_URL}/api/users/${uid}/dashboard`);
-      if (dashRes.ok) {
-        const dashData = await dashRes.json();
-        
-        // Format timeline items for Recharts
-        const mappedTimeline = dashData.timeline.map((t: any) => {
-          // Map string moods to numeric scores for chart representation
-          const moodScores: Record<string, number> = {
-            'Locked In': 5,
-            'Motivated': 4,
-            'Chill': 3,
-            'Overloaded': 2,
-            'Running on 2%': 1,
-            'Feeling Low': 1
-          };
-          return {
-            date: t.entry_date,
-            mood: t.mood,
-            moodScore: moodScores[t.mood] || 3,
-            sleepHours: parseFloat(t.sleep_hours),
-            studyHours: parseFloat(t.study_hours)
-          };
-        });
-        setTimeline(mappedTimeline);
+      // Format timeline items for Recharts
+      const moodScores: Record<string, number> = {
+        'Locked In': 5,
+        'Motivated': 4,
+        'Chill': 3,
+        'Overloaded': 2,
+        'Running on 2%': 1,
+        'Feeling Low': 1
+      };
+      const mappedTimeline = dashData.timeline.map((t: any) => ({
+        date: t.entry_date,
+        mood: t.mood,
+        moodScore: moodScores[t.mood] || 3,
+        sleepHours: parseFloat(t.sleep_hours),
+        studyHours: parseFloat(t.study_hours)
+      }));
+      setTimeline(mappedTimeline);
 
-        // Format trigger statistics
-        const mappedTriggers = Object.entries(dashData.triggers).map(([name, count]: any) => {
-          const totalLogs = dashData.timeline.length || 1;
-          const percentage = Math.round((count / totalLogs) * 100);
-          return { name, count, percentage };
-        }).sort((a, b) => b.count - a.count);
-        setTriggers(mappedTriggers);
+      // Format trigger statistics
+      const mappedTriggers = Object.entries(dashData.triggers).map(([name, count]: any) => {
+        const totalLogs = dashData.timeline.length || 1;
+        const percentage = Math.round((count / totalLogs) * 100);
+        return { name, count, percentage };
+      }).sort((a, b) => b.count - a.count);
+      setTriggers(mappedTriggers);
 
-        setSuggestions(dashData.suggestions || []);
-      }
+      setSuggestions(dashData.suggestions || []);
     } catch (err) {
       console.error(err);
       setBackendError(true);
@@ -133,32 +129,20 @@ export default function Home() {
     setIsLoading(true);
     setBackendError(false);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: onboardingName.trim(),
-          petName: onboardingPetName.trim() || 'Nova',
-          role
-        })
-      });
-
-      if (!response.ok) throw new Error("Registration failed");
-      const data = await response.json();
-      
-      localStorage.setItem('mindpulse_userId', data.user.id);
+      const newUser = registerLocalUser(onboardingName.trim(), onboardingPetName.trim(), role);
+      localStorage.setItem('mindpulse_userId', newUser.id);
       localStorage.setItem('mindpulse_role', role);
-      setUserId(data.user.id);
+      setUserId(newUser.id);
       
       setProfile({
-        id: data.user.id,
-        name: data.user.name,
-        focusXP: data.user.focus_xp,
-        streakCount: data.user.streak_count,
-        petStage: data.user.pet_stage,
-        petName: data.user.pet_name,
-        petXP: data.user.pet_xp,
-        studyAura: data.user.study_aura
+        id: newUser.id,
+        name: newUser.name,
+        focusXP: newUser.focus_xp,
+        streakCount: newUser.focus_xp, // Initial streak is 0
+        petStage: newUser.pet_stage,
+        petName: newUser.pet_name,
+        petXP: newUser.pet_xp,
+        studyAura: newUser.study_aura
       });
 
       // Confetti!
@@ -167,7 +151,6 @@ export default function Home() {
         spread: 70,
         origin: { y: 0.8 }
       });
-
     } catch (err) {
       console.error(err);
       setBackendError(true);
@@ -207,10 +190,8 @@ export default function Home() {
     if (!userId) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/seed`, {
-        method: 'POST'
-      });
-      if (response.ok) {
+      const updatedUser = seedLocalUserData(userId);
+      if (updatedUser) {
         alert("Demo data successfully pre-populated! Nova pet, wrapped recap, and analytics are fully updated. 🚀");
         fetchDashboardData(userId);
       }
@@ -228,7 +209,7 @@ export default function Home() {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`${API_BASE_URL}/api/users/${userId}`, { method: 'DELETE' });
+      deleteLocalUserProfile(userId);
       localStorage.removeItem('mindpulse_userId');
       localStorage.removeItem('mindpulse_role');
       setUserId(null);

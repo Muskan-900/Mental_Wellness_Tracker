@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { BookOpen, Sparkles, Smile, Shield, AlertTriangle, Moon, BookOpen as StudyIcon, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+import { logLocalJournalEntry } from '../utils/localDb';
+
 interface AIJournalProps {
   userId: string;
   role: 'student' | 'professional';
@@ -47,23 +49,11 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
     setError(null);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/journals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          journalText,
-          sleepHours,
-          studyHours,
-          role
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit journal entry');
+      // Direct local implementation
+      const data = logLocalJournalEntry(userId, journalText, sleepHours, studyHours, role);
+      if (!data) {
+        throw new Error('Failed to submit journal entry locally');
       }
-
-      const data = await response.json();
       
       // If safety triggered or valid response, let parent know
       onJournalLogged({
@@ -85,7 +75,7 @@ export default function AIJournal({ userId, role, onJournalLogged, apiBaseUrl }:
 
     } catch (err: any) {
       console.error(err);
-      setError('Could not connect to the MindPulse server. Please make sure the backend is active.');
+      setError('Could not save your journal locally. Please try again.');
     } finally {
       setLoading(false);
     }
