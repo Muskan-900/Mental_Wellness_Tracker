@@ -1,57 +1,23 @@
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
+const isPostgres = false;
 
-const isPostgres = process.env.DB_TYPE === 'postgres';
-let pgPool = null;
+// Pure In-Memory JavaScript Database Store
+let dbMemoryStore = { users: [], journals: [], coping_suggestions: [] };
 
-const dbFilename = process.env.NODE_ENV === 'test' ? 'test_mindpulse_db.json' : 'mindpulse_db.json';
-const jsonDbPath = process.env.VERCEL
-  ? path.join('/tmp', dbFilename)
-  : path.resolve(__dirname, '../../', dbFilename);
-
-// Helper to read JSON DB
+// Helper to read DB
 function readJsonDb() {
-  if (!fs.existsSync(jsonDbPath)) {
-    const defaultData = { users: [], journals: [], coping_suggestions: [] };
-    fs.writeFileSync(jsonDbPath, JSON.stringify(defaultData, null, 2), 'utf8');
-    return defaultData;
-  }
-  try {
-    const content = fs.readFileSync(jsonDbPath, 'utf8');
-    return JSON.parse(content);
-  } catch (error) {
-    console.error("Failed to parse JSON DB, resetting:", error);
-    const defaultData = { users: [], journals: [], coping_suggestions: [] };
-    fs.writeFileSync(jsonDbPath, JSON.stringify(defaultData, null, 2), 'utf8');
-    return defaultData;
-  }
+  if (!dbMemoryStore.users) dbMemoryStore.users = [];
+  if (!dbMemoryStore.journals) dbMemoryStore.journals = [];
+  if (!dbMemoryStore.coping_suggestions) dbMemoryStore.coping_suggestions = [];
+  return dbMemoryStore;
 }
 
-// Helper to write JSON DB
+// Helper to write DB
 function writeJsonDb(data) {
-  fs.writeFileSync(jsonDbPath, JSON.stringify(data, null, 2), 'utf8');
+  dbMemoryStore = data;
 }
 
-if (isPostgres) {
-  pgPool = new Pool({
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'mindpulse',
-    user: process.env.DB_USER || 'mindpulse_user',
-    password: process.env.DB_PASSWORD || 'mindpulse_password',
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-  });
-
-  pgPool.on('error', (err) => {
-    console.error('Unexpected error on idle PostgreSQL client', err);
-  });
-} else {
-  console.log('Using Pure-JS JSON Database at:', jsonDbPath);
-  readJsonDb(); // Ensure created
-}
+console.log('Using Pure In-Memory Database Engine.');
+readJsonDb(); // Ensure initialized
 
 /**
  * Executes a SQL query. Falls back to a pure JS JSON engine for local development.
@@ -273,15 +239,11 @@ async function query(text, params = []) {
 }
 
 /**
- * Initializes database schemas (no-op in JSON DB).
+ * Initializes database schemas (in-memory reset).
  */
 async function initDb() {
-  console.log(`Using Pure-JS database engine: initialized.`);
-  const dbData = readJsonDb();
-  if (!dbData.users) dbData.users = [];
-  if (!dbData.journals) dbData.journals = [];
-  if (!dbData.coping_suggestions) dbData.coping_suggestions = [];
-  writeJsonDb(dbData);
+  console.log(`Using Pure In-Memory database engine: initialized.`);
+  dbMemoryStore = { users: [], journals: [], coping_suggestions: [] };
 }
 
 module.exports = {
